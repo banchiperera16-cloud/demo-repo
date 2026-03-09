@@ -4,154 +4,75 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Group Idea Board</title>
-    <style>
-      /* 1. Typography & Global Spacing */
-      body {
-        font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-        line-height: 1.6;
-        color: #2d3436;
-        background-color: #f8f9fa;
-        padding: 40px 20px;
-        margin: 0;
-      }
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = { darkMode: 'class' }
+        
+        // Toggle function for Dark Mode
+        function toggleTheme() {
+            document.documentElement.classList.toggle('dark');
+        }
 
-      /* 2. Layout Container */
-      .container {
-        max-width: 600px;
-        margin: 0 auto;
-        background: #ffffff;
-        border-radius: 12px;
-        border: 1px solid #e1e4e8;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-        overflow: hidden;
-      }
+        // Function to add the idea
+        function addIdea() {
+            const nameInput = document.getElementById('nameInput');
+            const ideaInput = document.getElementById('ideaInput');
+            const name = nameInput.value.trim();
+            const idea = ideaInput.value.trim();
+            const container = document.getElementById('collection');
 
-      /* 3. Better List Layout for Ideas */
-      ul, ol {
-        padding: 20px;
-        list-style: none; /* Removes messy default bullets */
-      }
-
-      li {
-        background: #ffffff;
-        margin-bottom: 12px;
-        padding: 16px 20px;
-        border-radius: 12px;
-        border: 1px solid #e1e4e8;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.04);
-        transition: all 0.2s ease;
-        display: flex;
-        align-items: center;
-      }
-
-      li:hover {
-        border-color: #3498db;
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-      }
-
-      /* 4. Visually Appealing Button Design */
-      button, .button {
-        appearance: none;
-        background-color: #3498db;
-        color: white;
-        border: none;
-        padding: 12px 24px;
-        font-size: 16px;
-        font-weight: 600;
-        border-radius: 8px;
-        cursor: pointer;
-        transition: background 0.3s ease, transform 0.1s active;
-        display: inline-block;
-        text-decoration: none;
-        box-shadow: 0 4px 6px rgba(52, 152, 219, 0.2);
-      }
-
-      button:hover {
-        background-color: #2980b9;
-      }
-
-      button:active {
-        transform: scale(0.98);
-      }
-
-      /* 5. Headings Styling */
-      .header {
-        background-color: #2c3e50;
-        color: white;
-        padding: 20px;
-        text-align: center;
-        font-size: 1.5rem;
-        font-weight: 700;
-        letter-spacing: -0.5px;
-      }
-
-      /* Functional Styles for Input Section */
-      .input-section {
-        display: flex;
-        gap: 10px;
-        padding: 20px;
-        border-bottom: 1px solid #eee;
-        background-color: #fff;
-      }
-
-      select, input[type="text"] {
-        padding: 12px;
-        border: 1px solid #ddd;
-        border-radius: 8px;
-        font-size: 14px;
-      }
-
-      select {
-        flex: 1;
-        background-color: #fff;
-      }
-
-      input[type="text"] {
-        flex: 2;
-      }
-
-      .suggested-by {
-        font-style: italic;
-        color: #7f8c8d;
-        margin-left: 8px;
-        font-size: 0.9rem;
-      }
-
-      .name-bold {
-        font-weight: 600;
-        color: #2d3436;
-      }
+            if (name && idea) {
+                const div = document.createElement('div');
+                div.className = "p-4 mb-4 bg-gray-50 dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600 animate-in fade-in slide-in-from-top-2 duration-300";
+                div.innerHTML = `<div class="flex justify-between items-start"><div><p class="font-bold text-blue-600 dark:text-blue-400 text-sm uppercase tracking-wider">${name}</p><p class="text-gray-700 dark:text-gray-300 mt-1">${idea}</p></div><button onclick="this.closest('div.p-4').remove()" class="text-gray-400 hover:text-red-500 transition-colors">✕</button></div>`;
+                container.prepend(div);
+                
+                // Clear inputs
+                nameInput.value = '';
+                ideaInput.value = '';
+                nameInput.focus();
+            } else {
+                alert("Please provide both your name and an idea.");
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .animate-in {
+                animation: enter 0.3s ease-out;
+            }
+            @keyframes enter {
+                from { opacity: 0; transform: translateY(-10px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+        }
     </style>
 </head>
-<body>
+<body class="bg-gray-100 dark:bg-gray-900 transition-colors duration-300 min-h-screen">
 
-<div class="container">
-    <div class="header">Group Idea Board</div>
-    
-    <div class="input-section">
-        <select>
-            <option disabled selected>Select your name...</option>
-            <option>Nimal</option>
-            <option>Sara</option>
-            <option>Alex</option>
-        </select>
-        <input type="text" placeholder="Enter your idea here...">
-        <button>Add Idea</button>
-    </div>
+    <header class="flex justify-between items-center p-6 bg-white dark:bg-gray-800 shadow-md sticky top-0 z-10">
+        <h1 class="text-2xl font-bold text-gray-800 dark:text-white">GROUP IDEA BOARD</h1>
+        <button onclick="toggleTheme()" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-white rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition flex items-center gap-2">
+            🌓 Theme
+        </button>
+    </header>
 
-    <ul class="idea-list">
-        <li class="idea-item">
-            Build a study planner – <span class="suggested-by">suggested by <span class="name-bold">Nimal</span></span>
-        </li>
-        <li class="idea-item">
-            Start a podcast – <span class="suggested-by">suggested by <span class="name-bold">Sara</span></span>
-        </li>
-        <li class="idea-item">
-            Organize a coding workshop – <span class="suggested-by">suggested by <span class="name-bold">Alex</span></span>
-        </li>
-    </ul>
-</div>
+    <main class="max-w-2xl mx-auto mt-10 p-4 pb-20">
+        <section class="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700">
+            <h2 class="text-xl font-semibold mb-6 text-gray-800 dark:text-white">Submit an Idea</h2>
+            <div class="space-y-4">
+                <input id="nameInput" type="text" placeholder="Your name" class="w-full p-3 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none transition-all">
+                <textarea id="ideaInput" placeholder="What is your idea?" class="w-full p-3 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none h-24 transition-all"></textarea>
+                <button onclick="addIdea()" class="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 active:scale-[0.98] transition-all">Add Idea</button>
+            </div>
+        </section>
 
+        <section class="mt-10">
+            <h2 class="text-xl font-semibold mb-4 text-gray-800 dark:text-white">Ideas Collection</h2>
+            <div id="collection" class="space-y-4">
+                <!-- Ideas will appear here -->
+            </div>
+        </section>
+    </main>
 </body>
 </html>
