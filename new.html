@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Group Idea Board</title>
+    <style>
+      /* 1. Typography & Global Spacing */
+      body {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        line-height: 1.6;
+        color: #2d3436;
+        background-color: #f8f9fa;
+        padding: 40px 20px;
+        margin: 0;
+      }
+
+      /* 2. Layout Container */
+      .container {
+        max-width: 600px;
+        margin: 0 auto;
+        background: #ffffff;
+        border-radius: 12px;
+        border: 1px solid #e1e4e8;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        overflow: hidden;
+      }
+
+      /* 3. Better List Layout for Ideas */
+      ul, ol {
+        padding: 20px;
+        list-style: none; /* Removes messy default bullets */
+      }
+
+      li {
+        background: #ffffff;
+        margin-bottom: 12px;
+        padding: 16px 20px;
+        border-radius: 12px;
+        border: 1px solid #e1e4e8;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+      }
+
+      li:hover {
+        border-color: #3498db;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      }
+
+      /* 4. Visually Appealing Button Design */
+      button, .button {
+        appearance: none;
+        background-color: #3498db;
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        font-size: 16px;
+        font-weight: 600;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: background 0.3s ease, transform 0.1s active;
+        display: inline-block;
+        text-decoration: none;
+        box-shadow: 0 4px 6px rgba(52, 152, 219, 0.2);
+      }
+
+      button:hover {
+        background-color: #2980b9;
+      }
+
+      button:active {
+        transform: scale(0.98);
+      }
+
+      /* 5. Headings Styling */
+      .header {
+        background-color: #2c3e50;
+        color: white;
+        padding: 20px;
+        text-align: center;
+        font-size: 1.5rem;
+        font-weight: 700;
+        letter-spacing: -0.5px;
+      }
+
+      /* Functional Styles for Input Section */
+      .input-section {
+        display: flex;
+        gap: 10px;
+        padding: 20px;
+        border-bottom: 1px solid #eee;
+        background-color: #fff;
+      }
+
+      select, input[type="text"] {
+        padding: 12px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        font-size: 14px;
+      }
+
+      select {
+        flex: 1;
+        background-color: #fff;
+      }
+
+      input[type="text"] {
+        flex: 2;
+      }
+
+      .suggested-by {
+        font-style: italic;
+        color: #7f8c8d;
+        margin-left: 8px;
+        font-size: 0.9rem;
+      }
+
+      .name-bold {
+        font-weight: 600;
+        color: #2d3436;
+      }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">Group Idea Board</div>
+    
+    <div class="input-section">
+        <select>
+            <option disabled selected>Select your name...</option>
+            <option>Nimal</option>
+            <option>Sara</option>
+            <option>Alex</option>
+        </select>
+        <input type="text" placeholder="Enter your idea here...">
+        <button>Add Idea</button>
+    </div>
+
+    <ul class="idea-list">
+        <li class="idea-item">
+            Build a study planner – <span class="suggested-by">suggested by <span class="name-bold">Nimal</span></span>
+        </li>
+        <li class="idea-item">
+            Start a podcast – <span class="suggested-by">suggested by <span class="name-bold">Sara</span></span>
+        </li>
+        <li class="idea-item">
+            Organize a coding workshop – <span class="suggested-by">suggested by <span class="name-bold">Alex</span></span>
+        </li>
+    </ul>
+</div>
+
+</body>
+</html>
