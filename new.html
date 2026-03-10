@@ -24,15 +24,39 @@
             if (name && idea) {
                 const div = document.createElement('div');
                 div.className = "p-4 mb-4 bg-gray-50 dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600 animate-in fade-in slide-in-from-top-2 duration-300";
-                div.innerHTML = `<div class="flex justify-between items-start"><div><p class="font-bold text-blue-600 dark:text-blue-400 text-sm uppercase tracking-wider">${name}</p><p class="text-gray-700 dark:text-gray-300 mt-1">${idea}</p></div><button onclick="this.closest('div.p-4').remove()" class="text-gray-400 hover:text-red-500 transition-colors">✕</button></div>`;
+                div.innerHTML = `<div class="flex justify-between items-start"><div><p class="font-bold text-blue-600 dark:text-blue-400 text-sm uppercase tracking-wider">${name}</p><p class="text-gray-700 dark:text-gray-300 mt-1">${idea}</p></div><button onclick="removeIdea(this)" class="text-gray-400 hover:text-red-500 transition-colors">✕</button></div>`;
                 container.prepend(div);
                 
                 // Clear inputs
                 nameInput.value = '';
                 ideaInput.value = '';
                 nameInput.focus();
+
+                updateClearButtonVisibility();
             } else {
                 alert("Please provide both your name and an idea.");
+            }
+        }
+
+        function removeIdea(btn) {
+            btn.closest('div.p-4').remove();
+            updateClearButtonVisibility();
+        }
+
+        function clearAll() {
+            if (confirm("Are you sure you want to clear all ideas?")) {
+                document.getElementById('collection').innerHTML = '';
+                updateClearButtonVisibility();
+            }
+        }
+
+        function updateClearButtonVisibility() {
+            const container = document.getElementById('collection');
+            const clearBtn = document.getElementById('clearBtn');
+            if (container.children.length > 0) {
+                clearBtn.classList.remove('hidden');
+            } else {
+                clearBtn.classList.add('hidden');
             }
         }
     </script>
@@ -68,7 +92,10 @@
         </section>
 
         <section class="mt-10">
-            <h2 class="text-xl font-semibold mb-4 text-gray-800 dark:text-white">Ideas Collection</h2>
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-semibold text-gray-800 dark:text-white">Ideas Collection</h2>
+                <button id="clearBtn" onclick="clearAll()" class="hidden text-sm font-medium text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 transition-colors">Clear All</button>
+            </div>
             <div id="collection" class="space-y-4">
                 <!-- Ideas will appear here -->
             </div>
