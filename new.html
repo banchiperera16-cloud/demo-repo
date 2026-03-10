@@ -3,103 +3,623 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Group Idea Board</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = { darkMode: 'class' }
-        
-        // Toggle function for Dark Mode
-        function toggleTheme() {
-            document.documentElement.classList.toggle('dark');
+    <title>Academic Dashboard</title>
+    <!-- Google Fonts for sans-serif typography -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        /* 1. Design & Professional Color Palette: Maroon and Gold */
+        :root {
+            --bg-light: #fdfcf7;
+            --slate-200: #e5e7eb;
+            --slate-400: #94a3b8;
+            --slate-600: #475569;
+            --maroon: #800000;
+            --maroon-dark: #4a0000;
+            --gold: #d4af37;
+            --gold-bright: #ffd700;
+            --white: #ffffff;
+            --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
         }
 
-        // Function to add the idea
-        function addIdea() {
-            const nameInput = document.getElementById('nameInput');
-            const ideaInput = document.getElementById('ideaInput');
-            const name = nameInput.value.trim();
-            const idea = ideaInput.value.trim();
-            const container = document.getElementById('collection');
-
-            if (name && idea) {
-                const div = document.createElement('div');
-                div.className = "p-4 mb-4 bg-gray-50 dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600 animate-in fade-in slide-in-from-top-2 duration-300";
-                div.innerHTML = `<div class="flex justify-between items-start"><div><p class="font-bold text-blue-600 dark:text-blue-400 text-sm uppercase tracking-wider">${name}</p><p class="text-gray-700 dark:text-gray-300 mt-1">${idea}</p></div><button onclick="removeIdea(this)" class="text-gray-400 hover:text-red-500 transition-colors">✕</button></div>`;
-                container.prepend(div);
-                
-                // Clear inputs
-                nameInput.value = '';
-                ideaInput.value = '';
-                nameInput.focus();
-
-                updateClearButtonVisibility();
-            } else {
-                alert("Please provide both your name and an idea.");
-            }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
         }
 
-        function removeIdea(btn) {
-            btn.closest('div.p-4').remove();
-            updateClearButtonVisibility();
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-light);
+            color: var(--maroon-dark);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
         }
 
-        function clearAll() {
-            if (confirm("Are you sure you want to clear all ideas?")) {
-                document.getElementById('collection').innerHTML = '';
-                updateClearButtonVisibility();
-            }
+        /* Navbar Styling */
+        .navbar {
+            background-color: var(--white);
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 2rem;
+            border-bottom: 3px solid var(--maroon);
+            z-index: 100;
+            box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
         }
 
-        function updateClearButtonVisibility() {
-            const container = document.getElementById('collection');
-            const clearBtn = document.getElementById('clearBtn');
-            if (container.children.length > 0) {
-                clearBtn.classList.remove('hidden');
-            } else {
-                clearBtn.classList.add('hidden');
-            }
+        .navbar .logo {
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: var(--maroon);
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
-    </script>
-    <style type="text/tailwindcss">
-        @layer utilities {
-            .animate-in {
-                animation: enter 0.3s ease-out;
-            }
-            @keyframes enter {
-                from { opacity: 0; transform: translateY(-10px); }
-                to { opacity: 1; transform: translateY(0); }
-            }
+
+        .navbar .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .navbar .nav-links a {
+            text-decoration: none;
+            color: var(--slate-600);
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
+
+        .navbar .nav-links a:hover, .navbar .nav-links a.active {
+            color: var(--maroon);
+            border-bottom: 2px solid var(--gold);
+        }
+
+        /* Dashboard Layout */
+        .dashboard-container {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        /* Sidebar Styling */
+        .sidebar {
+            width: 300px;
+            background-color: var(--maroon);
+            color: var(--white);
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            overflow-y: auto;
+            border-right: 4px solid var(--gold);
+        }
+
+        .sidebar h2 {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--gold);
+            margin-bottom: 1rem;
+        }
+
+        .event-list {
+            list-style: none;
+        }
+
+        .event-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 0.75rem;
+            border-left: 4px solid var(--gold);
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .event-item:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateX(4px);
+        }
+
+        .event-item.selected {
+            background: rgba(255, 255, 255, 0.3);
+            border-left-color: var(--gold-bright);
+            transform: scale(1.05) translateX(10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.5);
+            z-index: 10;
+        }
+
+        .event-item p {
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .event-item span {
+            font-size: 0.75rem;
+            color: var(--gold-bright);
+        }
+
+        /* Main Content Styling */
+        .main-content {
+            flex: 1;
+            padding: 3rem;
+            overflow-y: auto;
+            background-color: var(--bg-light);
+        }
+
+        .view-section {
+            display: none;
+            max-width: 800px;
+            margin: 0 auto;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        .view-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Card Elements */
+        .card {
+            background: var(--white);
+            padding: 2.5rem;
+            border-radius: 0.5rem;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--slate-200);
+        }
+
+        h1 {
+            font-size: 1.75rem;
+            font-weight: 800;
+            margin-bottom: 1.5rem;
+            color: var(--maroon);
+            text-transform: uppercase;
+            border-bottom: 4px solid var(--gold);
+            display: inline-block;
+            padding-bottom: 0.25rem;
+        }
+
+        /* Form Components */
+        .form-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            align-items: end;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .form-group label {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--maroon);
+        }
+
+        input, select, textarea {
+            padding: 0.75rem;
+            border: 2px solid var(--slate-200);
+            border-radius: 0.375rem;
+            font-family: inherit;
+            outline: none;
+            background: var(--white);
+        }
+
+        input:focus, select:focus, textarea:focus {
+            border-color: var(--maroon);
+            box-shadow: 0 0 0 2px rgba(128, 0, 0, 0.1);
+        }
+
+        .btn-primary {
+            background: var(--maroon);
+            color: var(--white);
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.375rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 3px solid var(--gold);
+        }
+
+        .btn-primary:hover {
+            background: var(--maroon-dark);
+            transform: translateY(-1px);
+        }
+
+        /* Tables */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 2rem;
+        }
+
+        .data-table th {
+            text-align: left;
+            padding: 1rem;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            color: var(--white);
+            background: var(--maroon);
+            border-bottom: 3px solid var(--gold);
+        }
+
+        .data-table td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--slate-200);
+            font-size: 0.9rem;
+        }
+
+        .gpa-summary {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: var(--maroon);
+            color: var(--white);
+            border-radius: 0.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 8px solid var(--gold);
+        }
+
+        .gpa-summary .value {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--gold-bright);
+        }
+
+        /* Timer Components */
+        .timer-box {
+            text-align: center;
+            padding: 2rem 0;
+        }
+
+        .timer-display {
+            font-size: 7rem;
+            font-weight: 800;
+            color: var(--maroon);
+            margin: 1.5rem 0;
+            font-variant-numeric: tabular-nums;
+            text-shadow: 2px 2px 0px var(--gold);
+        }
+
+        /* Idea Board Components */
+        .idea-grid {
+            display: grid;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .idea-card {
+            padding: 1.25rem;
+            background: var(--white);
+            border-radius: 0.5rem;
+            border: 1px solid var(--slate-200);
+            position: relative;
+            border-left: 5px solid var(--gold);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .idea-card .author {
+            font-weight: 800;
+            font-size: 0.8rem;
+            color: var(--maroon);
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 900px) {
+            .sidebar { width: 100px; padding: 1rem; }
+            .sidebar h2, .sidebar p { display: none; }
+            .form-row { grid-template-columns: 1fr; }
         }
     </style>
 </head>
-<body class="bg-gray-100 dark:bg-gray-900 transition-colors duration-300 min-h-screen">
+<body>
 
-    <header class="flex justify-between items-center p-6 bg-white dark:bg-gray-800 shadow-md sticky top-0 z-10">
-        <h1 class="text-2xl font-bold text-gray-800 dark:text-white">GROUP IDEA BOARD</h1>
-        <button onclick="toggleTheme()" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-white rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition flex items-center gap-2">
-            🌓 Theme
-        </button>
+    <!-- 1. Navbar -->
+    <header class="navbar">
+        <div class="logo">UCSC</div>
+        <nav class="nav-links">
+            <a onclick="showSection('ideas')" id="link-ideas" class="active">Idea Board</a>
+            <a onclick="showSection('gpa')" id="link-gpa">GPA Calculator</a>
+            <a onclick="showSection('timer')" id="link-timer">Study Timer</a>
+        </nav>
     </header>
 
-    <main class="max-w-2xl mx-auto mt-10 p-4 pb-20">
-        <section class="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700">
-            <h2 class="text-xl font-semibold mb-6 text-gray-800 dark:text-white">Submit an Idea</h2>
-            <div class="space-y-4">
-                <input id="nameInput" type="text" placeholder="Your name" class="w-full p-3 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none transition-all">
-                <textarea id="ideaInput" placeholder="What is your idea?" class="w-full p-3 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none h-24 transition-all"></textarea>
-                <button onclick="addIdea()" class="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 active:scale-[0.98] transition-all">Add Idea</button>
-            </div>
-        </section>
+    <div class="dashboard-container">
+        <!-- 2. Sidebar -->
+        <aside class="sidebar">
+            <section>
+                <h2>Upcoming Events</h2>
+                <ul class="event-list" id="event-list">
+                    <!-- Loaded via JS -->
+                </ul>
+            </section>
+        </aside>
 
-        <section class="mt-10">
-            <div class="flex justify-between items-center mb-4">
-                <h2 class="text-xl font-semibold text-gray-800 dark:text-white">Ideas Collection</h2>
-                <button id="clearBtn" onclick="clearAll()" class="hidden text-sm font-medium text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 transition-colors">Clear All</button>
-            </div>
-            <div id="collection" class="space-y-4">
-                <!-- Ideas will appear here -->
-            </div>
-        </section>
-    </main>
+        <!-- 3. Main Content Areas -->
+        <main class="main-content">
+            
+            <!-- Idea Board View -->
+            <section id="ideas-section" class="view-section active">
+                <div class="card">
+                    <h2 style="text-align: center; font-weight: 800; color: var(--maroon); margin-bottom: 1rem; text-transform: uppercase; letter-spacing: 1px;">Welcome to UCSC</h2>
+                    <h1>Group Idea Board</h1>
+                    <div class="form-group" style="margin-bottom: 1rem;">
+                        <label>Your Name</label>
+                        <input type="text" id="idea-author" placeholder="John Doe">
+                    </div>
+                    <div class="form-group" style="margin-bottom: 1rem;">
+                        <label>The Idea</label>
+                        <textarea id="idea-text" placeholder="Share something brilliant..." rows="3"></textarea>
+                    </div>
+                    <button class="btn-primary" onclick="submitIdea()">Post Idea</button>
+
+                    <div class="form-group" style="margin-top: 2rem; border-top: 1px solid var(--slate-200); pt: 1.5rem;">
+                        <label>Filter Ideas</label>
+                        <input type="text" id="idea-filter" placeholder="Search by name or content..." oninput="renderIdeas(this.value)">
+                    </div>
+
+                    <div class="idea-grid" id="idea-grid">
+                        <!-- Loaded via JS -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- GPA Calculator View -->
+            <section id="gpa-section" class="view-section">
+                <div class="card">
+                    <h1>GPA Calculator</h1>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Course Name</label>
+                            <input type="text" id="course-name" placeholder="e.g. Psychology 101">
+                        </div>
+                        <div class="form-group">
+                            <label>Grade</label>
+                            <select id="course-grade">
+                                <option value="4.0">A</option>
+                                <option value="3.7">A-</option>
+                                <option value="3.3">B+</option>
+                                <option value="3.0">B</option>
+                                <option value="2.7">B-</option>
+                                <option value="2.3">C+</option>
+                                <option value="2.0">C</option>
+                                <option value="1.7">C-</option>
+                                <option value="1.0">D</option>
+                                <option value="0.0">F</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Credits</label>
+                            <input type="number" id="course-credits" value="3" min="1">
+                        </div>
+                    </div>
+                    <button class="btn-primary" onclick="addCourse()">Add Course</button>
+
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Course</th>
+                                <th>Grade</th>
+                                <th>Credits</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody id="course-list">
+                            <!-- Loaded via JS -->
+                        </tbody>
+                    </table>
+
+                    <div class="gpa-summary">
+                        <span style="font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">Calculated GPA</span>
+                        <span class="value" id="gpa-display">0.00</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Study Timer View -->
+            <section id="timer-section" class="view-section">
+                <div class="card">
+                    <div class="timer-box">
+                        <h1>Study Timer</h1>
+                        <p style="color: var(--slate-400); font-weight: 600;">Focus session (25 Minutes)</p>
+                        <div class="timer-display" id="timer-display">25:00</div>
+                        <div class="timer-controls" style="display: flex; justify-content: center; gap: 1rem;">
+                            <button class="btn-primary" id="timer-btn" onclick="toggleTimer()">Start Focus</button>
+                            <button class="btn-primary" style="background: var(--slate-200); color: var(--maroon); border-bottom-color: var(--slate-400);" onclick="resetTimer()">Reset</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <script>
+        // --- Persistence (LocalStorage) ---
+        let state = {
+            ideas: JSON.parse(localStorage.getItem('hub_ideas')) || [],
+            courses: JSON.parse(localStorage.getItem('hub_courses')) || [],
+            events: JSON.parse(localStorage.getItem('hub_events')) || [
+                { id: 1, title: 'Final Exam: History', date: 'Mar 15, 2026' },
+                { id: 2, title: 'Essay Submission', date: 'Mar 22, 2026' },
+                { id: 3, title: 'Group Lab Report', date: 'Mar 28, 2026' }
+            ]
+        };
+
+        const saveState = () => {
+            localStorage.setItem('hub_ideas', JSON.stringify(state.ideas));
+            localStorage.setItem('hub_courses', JSON.stringify(state.courses));
+            localStorage.setItem('hub_events', JSON.stringify(state.events));
+        };
+
+        // --- Navigation Logic ---
+        function showSection(id) {
+            document.querySelectorAll('.view-section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active'));
+            
+            document.getElementById(id + '-section').classList.add('active');
+            document.getElementById('link-' + id).classList.add('active');
+        }
+
+        // --- Idea Board Logic ---
+        function submitIdea() {
+            const author = document.getElementById('idea-author').value.trim();
+            const text = document.getElementById('idea-text').value.trim();
+            if (author && text) {
+                state.ideas.unshift({ id: Date.now(), author, text });
+                saveState();
+                renderIdeas();
+                document.getElementById('idea-text').value = '';
+            }
+        }
+
+        function renderIdeas(filter = '') {
+            const grid = document.getElementById('idea-grid');
+            const filteredIdeas = state.ideas.filter(i => 
+                i.author.toLowerCase().includes(filter.toLowerCase()) || 
+                i.text.toLowerCase().includes(filter.toLowerCase())
+            );
+
+            if (filteredIdeas.length === 0) {
+                grid.innerHTML = `<p style="text-align: center; color: var(--slate-400); padding: 2rem;">No ideas found.</p>`;
+                return;
+            }
+
+            grid.innerHTML = filteredIdeas.map(i => `
+                <div class="idea-card">
+                    <div class="author">${i.author}</div>
+                    <p>${i.text}</p>
+                    <button class="delete-btn" onclick="deleteItem('ideas', ${i.id})">✕</button>
+                </div>
+            `).join('');
+        }
+
+        // --- GPA Calculator Logic ---
+        function addCourse() {
+            const name = document.getElementById('course-name').value.trim();
+            const gradeEl = document.getElementById('course-grade');
+            const grade = parseFloat(gradeEl.value);
+            const gradeLetter = gradeEl.options[gradeEl.selectedIndex].text;
+            const credits = parseInt(document.getElementById('course-credits').value);
+
+            if (name && credits > 0) {
+                state.courses.push({ id: Date.now(), name, grade, gradeLetter, credits });
+                saveState();
+                renderGPA();
+                document.getElementById('course-name').value = '';
+            }
+        }
+
+        function renderGPA() {
+            const list = document.getElementById('course-list');
+            list.innerHTML = state.courses.map(c => `
+                <tr>
+                    <td style="font-weight: 600;">${c.name}</td>
+                    <td>${c.gradeLetter}</td>
+                    <td>${c.credits}</td>
+                    <td style="text-align: right;">
+                        <button class="delete-btn" style="opacity: 1; position: static; color: var(--maroon);" onclick="deleteItem('courses', ${c.id})">✕</button>
+                    </td>
+                </tr>
+            `).join('');
+
+            const totalCredits = state.courses.reduce((sum, c) => sum + c.credits, 0);
+            const totalPoints = state.courses.reduce((sum, c) => sum + (c.grade * c.credits), 0);
+            const gpa = totalCredits > 0 ? (totalPoints / totalCredits).toFixed(2) : "0.00";
+            document.getElementById('gpa-display').textContent = gpa;
+        }
+
+        // --- Study Timer Logic ---
+        let timerInterval;
+        let timeLeft = 25 * 60;
+        let isRunning = false;
+
+        function toggleTimer() {
+            const btn = document.getElementById('timer-btn');
+            if (isRunning) {
+                clearInterval(timerInterval);
+                btn.textContent = 'Start Focus';
+                btn.style.background = 'var(--maroon)';
+            } else {
+                timerInterval = setInterval(() => {
+                    timeLeft--;
+                    updateTimerDisplay();
+                    if (timeLeft <= 0) {
+                        clearInterval(timerInterval);
+                        alert("Session complete! Time for a break.");
+                        resetTimer();
+                    }
+                }, 1000);
+                btn.textContent = 'Pause';
+                btn.style.background = 'var(--maroon-dark)';
+            }
+            isRunning = !isRunning;
+        }
+
+        function updateTimerDisplay() {
+            const mins = Math.floor(timeLeft / 60).toString().padStart(2, '0');
+            const secs = (timeLeft % 60).toString().padStart(2, '0');
+            document.getElementById('timer-display').textContent = `${mins}:${secs}`;
+        }
+
+        function resetTimer() {
+            clearInterval(timerInterval);
+            timeLeft = 25 * 60;
+            isRunning = false;
+            updateTimerDisplay();
+            document.getElementById('timer-btn').textContent = 'Start Focus';
+            document.getElementById('timer-btn').style.background = 'var(--maroon)';
+        }
+
+        // --- Events Logic ---
+        function renderEvents() {
+            const list = document.getElementById('event-list');
+            list.innerHTML = state.events.map(e => `
+                <li class="event-item" onclick="selectSidebarItem(this)">
+                    <p>${e.title}</p>
+                    <span>${e.date}</span>
+                </li>
+            `).join('');
+        }
+
+        function selectSidebarItem(el) {
+            document.querySelectorAll('.event-item').forEach(item => item.classList.remove('selected'));
+            el.classList.add('selected');
+        }
+
+        function deleteItem(key, id) {
+            state[key] = state[key].filter(item => item.id !== id);
+            saveState();
+            if (key === 'ideas') renderIdeas();
+            if (key === 'courses') renderGPA();
+            if (key === 'events') renderEvents();
+        }
+
+        window.onload = () => {
+            renderIdeas();
+            renderGPA();
+            renderEvents();
+        };
+    </script>
 </body>
 </html>
