@@ -200,15 +200,23 @@
         .footer-card p { font-size: 0.95rem; line-height: 1.6; font-style: italic; }
 
         /* Dark Mode Specific Text */
-        body.dark-mode .hero-section h1, 
-        body.dark-mode .footer-card h4 { color: var(--gold-bright); }
-
-        body.dark-mode .hero-section p,
-        body.dark-mode .footer-card p,
-        body.dark-mode label,
-        body.dark-mode .sidebar h2,
-        body.dark-mode .event-item p,
-        body.dark-mode .timer-display { color: var(--gold) !important; }
+        body.dark-mode,
+        body.dark-mode h1, 
+        body.dark-mode h2, 
+        body.dark-mode h3, 
+        body.dark-mode h4, 
+        body.dark-mode p, 
+        body.dark-mode span, 
+        body.dark-mode div:not(.btn-primary), 
+        body.dark-mode label, 
+        body.dark-mode strong,
+        body.dark-mode .logo,
+        body.dark-mode .nav-btn,
+        body.dark-mode .author,
+        body.dark-mode .idea-text,
+        body.dark-mode .timer-display { 
+            color: var(--gold) !important; 
+        }
 
         body.dark-mode .navbar, 
         body.dark-mode .footer-card,
@@ -380,6 +388,13 @@
             align-items: center;
             padding: 2rem 0;
         }
+
+        @keyframes pulse-glow {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 var(--pulse-color); }
+            50% { transform: scale(1.03); box-shadow: 0 0 30px 10px var(--pulse-color-fade); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 var(--pulse-color); }
+        }
+
         .timer-circle {
             width: 250px;
             height: 250px;
@@ -393,10 +408,38 @@
             position: relative;
             background: var(--white);
             box-shadow: inset 0 0 20px rgba(0,0,0,0.05);
+            transition: all 0.5s ease;
+            --pulse-color: rgba(128, 0, 0, 0.4);
+            --pulse-color-fade: rgba(128, 0, 0, 0);
         }
+
+        .progress-ring {
+            position: absolute;
+            top: -8px;
+            left: -8px;
+            transform: rotate(-90deg);
+        }
+
+        .progress-ring__circle {
+            transition: stroke-dashoffset 0.35s;
+            transform-origin: 50% 50%;
+            stroke-linecap: round;
+        }
+
+        .timer-circle.running {
+            animation: pulse-glow 2s infinite ease-in-out;
+            border-color: rgba(128, 0, 0, 0.1);
+        }
+
         body.dark-mode .timer-circle {
             background: #1a1a1a;
             border-color: var(--maroon);
+            --pulse-color: rgba(212, 175, 55, 0.4);
+            --pulse-color-fade: rgba(212, 175, 55, 0);
+        }
+
+        body.dark-mode .timer-circle.running {
+            border-color: var(--gold) !important;
         }
         .timer-display { 
             font-size: 3.5rem; 
@@ -521,8 +564,11 @@
                         <h2 style="text-align: center; color: var(--maroon); margin-bottom: 2rem;">Study Timer</h2>
                         <div class="timer-container">
                             <div class="timer-circle">
+                                <svg class="progress-ring" width="250" height="250">
+                                    <circle class="progress-ring__circle" stroke="var(--gold)" stroke-width="8" fill="transparent" r="110" cx="125" cy="125"/>
+                                </svg>
                                 <div class="timer-display" id="timer-display">25:00</div>
-                                <div style="font-size: 0.8rem; color: var(--slate-600); margin-top: 0.5rem;">FOCUS MODE</div>
+                                <div id="timer-label" style="font-size: 0.8rem; color: var(--slate-600); margin-top: 0.5rem;">FOCUS MODE</div>
                             </div>
                             <div class="timer-controls">
                                 <button class="btn-primary" id="timer-btn" onclick="toggleTimer()">Start</button>
@@ -676,20 +722,42 @@
         }
 
         let timeLeft = 25 * 60, timerInt, isRunning = false;
+        const totalTime = 25 * 60;
+        const ring = document.querySelector('.progress-ring__circle');
+        const radius = ring.r.baseVal.value;
+        const circumference = radius * 2 * Math.PI;
+
+        ring.style.strokeDasharray = `${circumference} ${circumference}`;
+        ring.style.strokeDashoffset = circumference;
+
+        function setProgress(percent) {
+            const offset = circumference - (percent / 100 * circumference);
+            ring.style.strokeDashoffset = offset;
+        }
+
         function toggleTimer() {
             const btn = document.getElementById('timer-btn');
+            const circle = document.querySelector('.timer-circle');
             if (isRunning) { 
                 clearInterval(timerInt); 
                 btn.textContent = 'Start';
                 btn.style.background = 'var(--maroon)';
+                circle.classList.remove('running');
             }
             else {
+                circle.classList.add('running');
                 timerInt = setInterval(() => {
                     timeLeft--;
                     const m = Math.floor(timeLeft/60).toString().padStart(2,'0'), s = (timeLeft%60).toString().padStart(2,'0');
                     document.getElementById('timer-display').textContent = `${m}:${s}`;
+                    
+                    const percent = ((totalTime - timeLeft) / totalTime) * 100;
+                    setProgress(percent);
+
                     if (timeLeft <= 0) { 
                         clearInterval(timerInt); 
+                        circle.classList.remove('running');
+                        setProgress(100);
                         alert("Time is up! Great job focusing."); 
                         resetTimer();
                     }
@@ -706,8 +774,11 @@
             timeLeft = 25 * 60;
             document.getElementById('timer-display').textContent = "25:00";
             const btn = document.getElementById('timer-btn');
+            const circle = document.querySelector('.timer-circle');
             btn.textContent = "Start";
             btn.style.background = 'var(--maroon)';
+            circle.classList.remove('running');
+            setProgress(0);
         }
 
         window.onload = () => {
